@@ -1,0 +1,29 @@
+import express from "express";
+import cors from "cors";
+
+import userRoutes from "./routes/user.routes.js";
+import clanRoutes from "./routes/clan.routes.js";
+import voteRoutes from "./routes/vote.routes.js";
+import tournamentRoutes from "./routes/tournament.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+import rankingRoutes from "./routes/ranking.routes.js";
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use("/api/ranking", rankingRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/tournaments", tournamentRoutes);
+app.use("/api/votes", voteRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/clans", clanRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
+});
+
+export default app;
