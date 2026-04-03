@@ -2,11 +2,18 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+import generateToken from "../utils/generateToken.js";
+
 export const register = async (req, res) => {
   try {
     const { fullName, age, country, games, email, password } = req.body;
 
-    const hashed = await bcrypt.hash(password, 10);
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ msg: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       fullName,
@@ -14,12 +21,17 @@ export const register = async (req, res) => {
       country,
       games,
       email,
-      password: hashed,
+      password: hashedPassword,
     });
 
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(201).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      token: generateToken(user._id), // 🔥 TOKEN
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -27,20 +39,19 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
 
-    if (!user) return res.status(404).json({ msg: "User not found" });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) return res.status(400).json({ msg: "Wrong password" });
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.json({ token, user });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (user && (await bcrypt.compare(password, user.password))) {
+      res.json({
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        token: generateToken(user._id), // 🔥 TOKEN
+      });
+    } else {
+      res.status(401).json({ msg: "Invalid email or password" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
