@@ -4,6 +4,15 @@ import jwt from "jsonwebtoken";
 
 import generateToken from "../utils/generateToken.js";
 
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password"); // passwordni ko'rsatmaymiz
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const register = async (req, res) => {
   try {
     const { fullName, age, country, games, email, password } = req.body;
