@@ -39,12 +39,24 @@ const userSchema = new mongoose.Schema({
     lastActive: Date,
   },
 
+  isOnline: {
+    type: Boolean,
+    default: false,
+  },
+
   trustScore: { type: Number, default: 100 },
+
+  lastNameChange: Date,
+  lastAvatarChange: Date,
+  lastCredentialChange: Date,
 
   ban: {
     reason: String,
     until: Date,
   },
+
+  resetOTP: String,
+  resetOTPExpire: Date,
 });
 
 export default mongoose.model("User", userSchema);

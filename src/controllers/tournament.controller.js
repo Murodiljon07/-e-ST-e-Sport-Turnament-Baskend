@@ -21,50 +21,41 @@ export const createTournament = async (req, res) => {
   }
 };
 
-// JOIN TOURNAMENT
+// JOIN TOURNAMENT (leader/elder only)
 export const joinTournament = async (req, res) => {
   try {
     const { tournamentId, clanId } = req.body;
+
+    const clan = await Clan.findById(clanId);
+    if (!clan) return res.status(404).json({ msg: "Clan not found" });
+
+    // Leader or elder check
+    const user = await User.findById(req.user.id);
+    if (user.clan.toString() !== clanId)
+      return res.status(403).json({ msg: "You are not in this clan" });
+    if (!["leader", "elder"].includes(user.clanRole))
+      return res.status(403).json({ msg: "Only leader/elder can join" });
 
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament)
       return res.status(404).json({ msg: "Tournament not found" });
 
-    const clan = await Clan.findById(clanId).populate("members");
-    if (!clan) return res.status(404).json({ msg: "Clan not found" });
+    // Max players / max teams check
+    if (tournament.teams.includes(clanId))
+      return res.status(400).json({ msg: "Clan already registered" });
+    if (tournament.teams.length >= tournament.maxTeams)
+      return res.status(400).json({ msg: "Tournament full" });
 
-    const user = await User.findById(req.user.id);
-
-    if (
-      !["leader", "elder"].includes(user.clanRole) ||
-      user.clan.toString() !== clan._id.toString()
-    ) {
-      return res
-        .status(403)
-        .json({ msg: "Only leader/elder can register clan" });
-    }
-
-    // maxPlayers check
-    const totalPlayers = clan.members.length;
-    if (totalPlayers > tournament.maxPlayers) {
-      return res
-        .status(400)
-        .json({ msg: "Clan members exceed tournament maxPlayers" });
-    }
-
-    // Already joined?
-    const alreadyJoined = tournament.teams.some(
-      (team) => team.clan.toString() === clan._id.toString(),
-    );
-    if (alreadyJoined)
-      return res.status(400).json({ msg: "Clan already joined" });
-
-    tournament.teams.push({
-      clan: clan._id,
-      members: clan.members.map((m) => m._id),
-    });
-
+    tournament.teams.push(clanId);
     await tournament.save();
+
+    for (const member of clan.members) {
+      await Notification.create({
+        user: member,
+        message: `Your clan joined ${tournament.name}`,
+        type: "tournament_join",
+      });
+    }
 
     res.json({ msg: "Clan registered to tournament" });
   } catch (err) {
@@ -157,6 +148,29 @@ export const submitMatchResults = async (req, res) => {
     await tournament.save();
 
     res.json({ msg: "Results submitted", match });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET ALL PUBLIC TOURNAMENTS
+export const getTournaments = async (req, res) => {
+  try {
+    const tournaments = await Tournament.find().sort({ startTime: 1 });
+    res.json(tournaments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET TOURNAMENT BY ID
+export const getTournamentById = async (req, res) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id)
+      .populate("teams", "name members") // clan names + members
+      .populate("createdBy", "fullName email");
+    if (!tournament) return res.status(404).json({ msg: "Not found" });
+    res.json(tournament);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

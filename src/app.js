@@ -10,7 +10,9 @@ import voteRoutes from "./routes/vote.routes.js";
 import tournamentRoutes from "./routes/tournament.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import rankingRoutes from "./routes/ranking.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 
+import updateLastActive from "../src/middleware/lastActive.js";
 const app = express();
 
 app.use(cors({ origin: "*" }));
@@ -54,6 +56,7 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(updateLastActive);
 
 // ROUTES
 app.use("/api/ranking", rankingRoutes);
@@ -62,6 +65,7 @@ app.use("/api/tournaments", tournamentRoutes);
 app.use("/api/votes", voteRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clans", clanRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

@@ -14,6 +14,10 @@ import {
   updateTournament,
   deleteTournament,
   getTournamentsAdmin,
+  getTournamentById,
+  createMatch,
+  sendMatchInfo,
+  submitResult,
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -103,13 +107,19 @@ router.delete("/clans/:id", protect, adminOnly, deleteClanAdmin);
  */
 router.get("/tournaments", protect, adminOnly, getTournamentsAdmin);
 
+/* *
+ * @swagger
+ * /api/admin/tournaments/{id}:
+ */
+router.get("/tournaments/:id", protect, adminOnly, getTournamentById);
+
 /**
  * @swagger
- * /api/admin/tournaments:
+ * /api/admin/tournaments/create:
  *   post:
  *     summary: Create tournament
  */
-router.post("/tournaments", protect, adminOnly, createTournament);
+router.post("/tournaments/create", protect, adminOnly, createTournament);
 
 /**
  * @swagger
@@ -152,5 +162,39 @@ router.put("/tournaments/:id", protect, adminOnly, updateTournament);
  *     summary: Delete tournament
  */
 router.delete("/tournaments/:id", protect, adminOnly, deleteTournament);
+
+/**
+ * @swagger
+ * /api/admin/match:
+ *   post:
+ *     summary: Create match
+ */
+router.post("/match", protect, adminOnly, createMatch);
+
+/**
+ * @swagger
+ * /api/admin/match/send:
+ *   post:
+ *     summary: Send match room info to players
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             tournamentId: "123"
+ *             matchIndex: 0
+ */
+router.post("/match/send", protect, adminOnly, sendMatchInfo);
+
+/**
+ * @swagger
+ * /api/admin/match/result:
+ *   post:
+ *     summary: Submit match result
+ */
+router.post("/match/result", protect, adminOnly, submitResult);
 
 export default router;

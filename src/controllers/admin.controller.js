@@ -219,3 +219,84 @@ export const getTournamentsAdmin = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// GET TURNAMENT BY ID
+export const getTournamentById = async (req, res) => {
+  try {
+    const tournament = await Tournament.findById(req.params.id)
+      .populate("teams", "name members")
+      .populate("createdBy", "fullName email");
+    if (!tournament)
+      return res.status(404).json({ msg: "Tournament not found" });
+    res.json(tournament);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const sendMatchInfo = async (req, res) => {
+  const { tournamentId, roomId, password } = req.body;
+
+  const tournament =
+    await Tournament.findById(tournamentId).populate("teams.members");
+
+  for (const team of tournament.teams) {
+    for (const player of team.members) {
+      await Notification.create({
+        user: player,
+        message: `Match starting soon! Room ID: ${roomId}, Password: ${password}`,
+        type: "match_info",
+      });
+    }
+  }
+
+  res.json({ msg: "Match info sent" });
+};
+
+// CREATE MATCH
+export const createMatch = async (req, res) => {
+  const { tournamentId, map, roomId, password } = req.body;
+
+  const tournament = await Tournament.findById(tournamentId);
+
+  tournament.matches.push({
+    round: 1,
+    map,
+    roomId,
+    password,
+    results: [],
+  });
+
+  await tournament.save();
+
+  res.json({ msg: "Match created" });
+};
+
+export const submitResult = async (req, res) => {
+  const { tournamentId, matchIndex, results } = req.body;
+
+  const tournament = await Tournament.findById(tournamentId);
+
+  const match = tournament.matches[matchIndex];
+
+  match.results = results.map((r) => ({
+    clan: r.clan,
+    players: r.players,
+    totalKills: r.players.reduce((a, p) => a + p.kills, 0),
+    position: r.position,
+    points:
+      (r.position === 1
+        ? 10
+        : r.position === 2
+          ? 6
+          : r.position === 3
+            ? 5
+            : 0) + r.players.reduce((a, p) => a + p.kills, 0),
+  }));
+
+  match.played = true;
+
+  await tournament.save();
+
+  res.json(match);
+};

@@ -4,6 +4,8 @@ import {
   joinTournament,
   generateMatches,
   submitMatchResults,
+  getTournamentById,
+  getTournaments,
 } from "../controllers/tournament.controller.js";
 
 import protect from "../middleware/auth.js";
@@ -112,5 +114,53 @@ router.post("/generate/:id", protect, generateMatches);
  *         description: Results submitted
  */
 router.post("/results/:id", protect, submitMatchResults);
+
+router.get("/tournaments/recommended", protect, async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  const games = user.games.map((g) => g.name);
+
+  const tournaments = await Tournament.find({
+    game: { $in: games },
+  });
+
+  res.json(tournaments);
+});
+
+// ================= PLAYER VIEW =================
+
+/**
+ * @swagger
+ * /api/tournaments:
+ *   get:
+ *     summary: Get all tournaments (public view)
+ *     tags: [Tournaments]
+ */
+router.get("/", getTournaments);
+
+/**
+ * @swagger
+ * /api/tournaments/{id}:
+ *   get:
+ *     summary: Get tournament details by ID
+ */
+router.get("/:id", getTournamentById);
+
+/**
+ * @swagger
+ * /api/tournaments/join:
+ *   post:
+ *     summary: Join tournament (leader/elder only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             tournamentId: "TOURNAMENT_ID"
+ *             clanId: "CLAN_ID"
+ */
+router.post("/join", protect, joinTournament);
 
 export default router;

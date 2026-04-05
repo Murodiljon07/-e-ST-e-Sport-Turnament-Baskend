@@ -1,15 +1,6 @@
 import Clan from "../models/Clan.js";
 import User from "../models/User.js";
 
-// //GET CLANS
-// export const getAllClans  = async(req, res){
-//   try {
-
-//   } catch (error) {
-
-//   }
-// }
-
 // CREATE CLAN
 export const createClan = async (req, res) => {
   try {
@@ -44,7 +35,7 @@ export const joinClan = async (req, res) => {
     const user = await User.findById(req.user.id);
 
     if (user.clan) {
-      return res.status(400).json({ msg: "Already in clan" });
+      return res.status(400).json({ msg: "You must leave current clan first" });
     }
 
     const clan = await Clan.findById(req.body.clanId);
@@ -78,6 +69,12 @@ export const leaveClan = async (req, res) => {
 
     if (!clan) return res.status(404).json({ msg: "Clan not found" });
 
+    if (user.clanRole === "leader") {
+      return res.status(400).json({
+        msg: "Leader cannot leave. Transfer leadership first",
+      });
+    }
+
     clan.members = clan.members.filter(
       (m) => m.toString() !== user._id.toString(),
     );
@@ -85,7 +82,7 @@ export const leaveClan = async (req, res) => {
     await clan.save();
 
     user.clan = null;
-    user.clanRole = "member";
+    user.clanRole = null;
     await user.save();
 
     res.json({ msg: "Left clan" });
