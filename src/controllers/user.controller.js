@@ -26,6 +26,12 @@ export const register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    if (age < 16)
+      return res.status(400).json({
+        msg: `You are not old enough to register for tournaments! Incorrect age entry will result in restriction from tournaments and ban from the system!!!! If the age restriction is detected even during participation in the tournament, the promised prize will not be awarded!!
+Please enter your age correctly`,
+      });
+
     const user = await User.create({
       fullName,
       age,
@@ -39,6 +45,8 @@ export const register = async (req, res) => {
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
+      games: user.games,
+      age: user.age,
       token: generateToken(user._id),
     });
   } catch (error) {
