@@ -10,7 +10,7 @@ import voteRoutes from "./routes/vote.routes.js";
 import tournamentRoutes from "./routes/tournament.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import rankingRoutes from "./routes/ranking.routes.js";
-
+import notificationRoutes from "./routes/notification.routes.js";
 import updateLastActive from "../src/middleware/lastActive.js";
 const app = express();
 
@@ -65,7 +65,6 @@ app.use("/api/votes", voteRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clans", clanRoutes);
 app.use("/api/notifications", notificationRoutes);
-
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
