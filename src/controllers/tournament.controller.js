@@ -24,32 +24,49 @@ export const createTournament = async (req, res) => {
 // JOIN TOURNAMENT
 export const joinTournament = async (req, res) => {
   try {
-    const clan = await Clan.findOne({ leader: req.user.id });
+    const { tournamentId, clanId } = req.body;
 
-    if (!clan) {
-      return res.status(400).json({ msg: "Only leader can join" });
-    }
-
-    const tournament = await Tournament.findById(req.body.tournamentId);
-
-    if (!tournament) {
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament)
       return res.status(404).json({ msg: "Tournament not found" });
+
+    const clan = await Clan.findById(clanId).populate("members");
+    if (!clan) return res.status(404).json({ msg: "Clan not found" });
+
+    const user = await User.findById(req.user.id);
+
+    if (
+      !["leader", "elder"].includes(user.clanRole) ||
+      user.clan.toString() !== clan._id.toString()
+    ) {
+      return res
+        .status(403)
+        .json({ msg: "Only leader/elder can register clan" });
     }
 
-    // ❗ duplicate check
-    if (tournament.teams.includes(clan._id)) {
-      return res.status(400).json({ msg: "Already joined" });
+    // maxPlayers check
+    const totalPlayers = clan.members.length;
+    if (totalPlayers > tournament.maxPlayers) {
+      return res
+        .status(400)
+        .json({ msg: "Clan members exceed tournament maxPlayers" });
     }
 
-    // ❗ max limit
-    if (tournament.teams.length >= tournament.maxTeams) {
-      return res.status(400).json({ msg: "Tournament full" });
-    }
+    // Already joined?
+    const alreadyJoined = tournament.teams.some(
+      (team) => team.clan.toString() === clan._id.toString(),
+    );
+    if (alreadyJoined)
+      return res.status(400).json({ msg: "Clan already joined" });
 
-    tournament.teams.push(clan._id);
+    tournament.teams.push({
+      clan: clan._id,
+      members: clan.members.map((m) => m._id),
+    });
+
     await tournament.save();
 
-    res.json({ msg: "Joined tournament" });
+    res.json({ msg: "Clan registered to tournament" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

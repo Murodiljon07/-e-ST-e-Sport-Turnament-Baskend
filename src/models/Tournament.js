@@ -35,30 +35,24 @@ const matchSchema = new mongoose.Schema({
 const tournamentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   game: { type: String, required: true },
+  description: { type: String, required: true, default: "" },
+  rules: { type: String, default: "" },
+  image: { type: String, default: "" },
 
-  maxTeams: { type: Number, default: 16 },
-
-  type: {
-    type: String,
-    enum: ["single_elimination"],
-    default: "single_elimination",
-  },
-
-  startTime: Date,
-
+  maxPlayers: { type: Number, required: true, default: 1 },
   teams: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Clan",
+      clan: { type: mongoose.Schema.Types.ObjectId, ref: "Clan" },
+      members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     },
   ],
 
-  matches: [matchSchema],
+  registrationDeadline: { type: Date, required: true },
+  startTime: { type: Date, required: true },
 
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // admin
+
+  isPaid: { type: Boolean, default: false },
 });
 
 export default mongoose.model("Tournament", tournamentSchema);

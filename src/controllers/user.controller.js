@@ -33,6 +33,10 @@ export const register = async (req, res) => {
       password: hashedPassword,
     });
 
+    if (!games || games.length === 0) {
+      return res.status(400).json({ msg: "At least one game required" });
+    }
+
     res.status(201).json({
       _id: user._id,
       fullName: user.fullName,

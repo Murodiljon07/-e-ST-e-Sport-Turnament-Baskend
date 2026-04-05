@@ -125,19 +125,35 @@ export const deleteClanAdmin = async (req, res) => {
 // CREATE
 export const createTournament = async (req, res) => {
   try {
-    const { name, game, startDate } = req.body;
+    const user = await User.findById(req.user.id);
+    if (user.role !== "admin")
+      return res.status(403).json({ msg: "Only admin can create tournaments" });
 
-    if (!name || !game) {
-      return res.status(400).json({ msg: "Name and game required" });
-    }
+    const {
+      name,
+      game,
+      description,
+      rules,
+      image,
+      maxPlayers,
+      registrationDeadline,
+      startTime,
+    } = req.body;
 
     const tournament = await Tournament.create({
       name,
       game,
-      startDate,
+      description,
+      rules,
+      image,
+      maxPlayers,
+      registrationDeadline,
+      startTime,
+      createdBy: user._id,
+      teams: [],
     });
 
-    res.json(tournament);
+    res.status(201).json(tournament);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -146,15 +162,32 @@ export const createTournament = async (req, res) => {
 // UPDATE
 export const updateTournament = async (req, res) => {
   try {
-    const tournament = await Tournament.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true },
-    );
+    const {
+      name,
+      game,
+      description,
+      rules,
+      image,
+      maxPlayers,
+      registrationDeadline,
+      startTime,
+    } = req.body;
 
+    const tournament = await Tournament.findById(req.params.id);
     if (!tournament)
       return res.status(404).json({ msg: "Tournament not found" });
 
+    tournament.name = name || tournament.name;
+    tournament.game = game || tournament.game;
+    tournament.description = description || tournament.description;
+    tournament.rules = rules || tournament.rules;
+    tournament.image = image || tournament.image;
+    tournament.maxPlayers = maxPlayers || tournament.maxPlayers;
+    tournament.registrationDeadline =
+      registrationDeadline || tournament.registrationDeadline;
+    tournament.startTime = startTime || tournament.startTime;
+
+    await tournament.save();
     res.json(tournament);
   } catch (err) {
     res.status(500).json({ error: err.message });

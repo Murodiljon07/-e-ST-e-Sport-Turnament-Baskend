@@ -5,7 +5,12 @@ const userSchema = new mongoose.Schema({
   age: Number,
   country: String,
 
-  games: [String],
+  games: [
+    {
+      name: String,
+      playerId: String,
+    },
+  ],
 
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },

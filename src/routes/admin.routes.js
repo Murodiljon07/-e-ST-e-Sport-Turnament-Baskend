@@ -116,6 +116,32 @@ router.post("/tournaments", protect, adminOnly, createTournament);
  * /api/admin/tournaments/{id}:
  *   put:
  *     summary: Update tournament
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             name: "PUBG Masters"
+ *             game: "PUBG"
+ *             description: "Top players tournament"
+ *             rules: "1v1, max 4 players per team"
+ *             image: "url/to/image.jpg"
+ *             maxPlayers: 4
+ *             registrationDeadline: "2026-04-10T12:00:00Z"
+ *             startTime: "2026-04-15T15:00:00Z"
+ *     responses:
+ *       200:
+ *         description: Tournament updated successfully
  */
 router.put("/tournaments/:id", protect, adminOnly, updateTournament);
 
