@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   clanRole: {
     type: String,
     enum: ["leader", "elder", "member"],
-    default: "member",
+    default: null,
   },
 
   profile: {
