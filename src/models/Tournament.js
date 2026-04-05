@@ -1,25 +1,35 @@
 import mongoose from "mongoose";
 
 const matchSchema = new mongoose.Schema({
-  teamA: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Clan",
+  round: Number,
+
+  results: [
+    {
+      clan: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Clan",
+      },
+
+      players: [
+        {
+          user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+          kills: { type: Number, default: 0 },
+        },
+      ],
+
+      totalKills: Number,
+      position: Number,
+      points: Number,
+    },
+  ],
+
+  played: {
+    type: Boolean,
+    default: false,
   },
-  teamB: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Clan",
-  },
-  round: Number, // 1 = quarter, 2 = semi, 3 = final
-  winner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Clan",
-  },
-  status: {
-    type: String,
-    enum: ["pending", "finished"],
-    default: "pending",
-  },
-  time: Date,
 });
 
 const tournamentSchema = new mongoose.Schema({

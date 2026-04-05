@@ -95,22 +95,51 @@ export const generateMatches = async (req, res) => {
 };
 
 // MATCH WINNER
-export const setMatchWinner = async (req, res) => {
+export const submitMatchResults = async (req, res) => {
   try {
-    const { matchId, winnerId } = req.body;
+    const { matchId, results } = req.body;
 
     const tournament = await Tournament.findById(req.params.id);
 
     const match = tournament.matches.id(matchId);
 
-    if (!match) return res.status(404).json({ msg: "Match not found" });
+    if (!match) {
+      return res.status(404).json({ msg: "Match not found" });
+    }
 
-    match.winner = winnerId;
-    match.status = "finished";
+    if (match.played) {
+      return res.status(400).json({ msg: "Already submitted" });
+    }
+
+    const positionPoints = {
+      1: 10,
+      2: 6,
+      3: 5,
+      4: 4,
+      5: 3,
+      6: 2,
+      7: 1,
+      8: 1,
+    };
+
+    const processedResults = results.map((team) => {
+      const totalKills = team.players.reduce((sum, p) => sum + p.kills, 0);
+
+      const points = totalKills + (positionPoints[team.position] || 0);
+
+      return {
+        ...team,
+        totalKills,
+        points,
+      };
+    });
+
+    match.results = processedResults;
+    match.played = true;
 
     await tournament.save();
 
-    res.json({ msg: "Winner set", match });
+    res.json({ msg: "Results submitted", match });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

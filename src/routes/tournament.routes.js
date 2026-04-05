@@ -3,7 +3,7 @@ import {
   createTournament,
   joinTournament,
   generateMatches,
-  setMatchWinner,
+  submitMatchResults,
 } from "../controllers/tournament.controller.js";
 
 import protect from "../middleware/auth.js";
@@ -74,6 +74,43 @@ router.post("/join", protect, joinTournament);
  */
 router.post("/generate/:id", protect, generateMatches);
 
-router.post("/winner/:id", protect, setMatchWinner);
+/**
+ * @swagger
+ * /api/tournaments/results/{id}:
+ *   post:
+ *     summary: Submit PUBG match results
+ *     tags: [Tournaments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             matchId: "MATCH_ID"
+ *             results:
+ *               - clan: "CLAN_ID"
+ *                 position: 1
+ *                 players:
+ *                   - user: "USER_ID"
+ *                     kills: 5
+ *                   - user: "USER_ID"
+ *                     kills: 3
+ *                   - user: "USER_ID"
+ *                     kills: 2
+ *                   - user: "USER_ID"
+ *                     kills: 1
+ *     responses:
+ *       200:
+ *         description: Results submitted
+ */
+router.post("/results/:id", protect, submitMatchResults);
 
 export default router;
