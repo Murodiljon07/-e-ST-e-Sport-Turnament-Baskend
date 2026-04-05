@@ -10,7 +10,6 @@ import voteRoutes from "./routes/vote.routes.js";
 import tournamentRoutes from "./routes/tournament.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import rankingRoutes from "./routes/ranking.routes.js";
-import notificationRoutes from "./routes/notification.routes.js";
 
 import updateLastActive from "../src/middleware/lastActive.js";
 const app = express();
