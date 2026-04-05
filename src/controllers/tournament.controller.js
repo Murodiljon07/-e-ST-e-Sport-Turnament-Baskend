@@ -1,6 +1,7 @@
 import Tournament from "../models/Tournament.js";
 import Clan from "../models/Clan.js";
 import User from "../models/User.js";
+import Notification from "../models/Notification.js";
 
 // CREATE (ADMIN)
 export const createTournament = async (req, res) => {

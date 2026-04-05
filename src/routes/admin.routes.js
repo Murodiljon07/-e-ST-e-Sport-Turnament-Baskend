@@ -17,6 +17,8 @@ import {
   getTournamentById,
   createMatch,
   sendMatchInfo,
+  submitMatchResults,
+  assignSlots,
   submitResult,
 } from "../controllers/admin.controller.js";
 
@@ -173,6 +175,29 @@ router.post("/match", protect, adminOnly, createMatch);
 
 /**
  * @swagger
+ * /api/admin/match/slots:
+ *   post:
+ *     summary: Assign PUBG slots
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             tournamentId: "123"
+ *             matchIndex: 0
+ *             slots:
+ *               - clan: "CLAN_ID"
+ *                 slot: "1/1"
+ *               - clan: "CLAN_ID2"
+ *                 slot: "14/2"
+ */
+router.post("/match/slots", protect, adminOnly, assignSlots);
+
+/**
+ * @swagger
  * /api/admin/match/send:
  *   post:
  *     summary: Send match room info to players
@@ -191,10 +216,23 @@ router.post("/match/send", protect, adminOnly, sendMatchInfo);
 
 /**
  * @swagger
- * /api/admin/match/result:
+ * /api/admin/match/results:
  *   post:
- *     summary: Submit match result
+ *     summary: Submit match results
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             matchId: "MATCH123"
+ *             results:
+ *               - user: "USER_ID"
+ *                 kills: 5
+ *                 win: true
  */
-router.post("/match/result", protect, adminOnly, submitResult);
+router.post("/results", protect, adminOnly, submitMatchResults);
 
 export default router;

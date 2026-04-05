@@ -7,8 +7,8 @@ const userSchema = new mongoose.Schema({
 
   games: [
     {
-      name: String,
-      playerId: String,
+      name: { type: String, required: true },
+      playerId: { type: String, required: true },
     },
   ],
 
@@ -21,11 +21,7 @@ const userSchema = new mongoose.Schema({
     default: "player",
   },
 
-  clan: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Clan",
-    default: null,
-  },
+  clan: { type: mongoose.Schema.Types.ObjectId, ref: "Clan", default: null },
 
   clanRole: {
     type: String,
@@ -39,12 +35,18 @@ const userSchema = new mongoose.Schema({
     lastActive: Date,
   },
 
-  isOnline: {
-    type: Boolean,
-    default: false,
-  },
+  isOnline: { type: Boolean, default: false },
 
   trustScore: { type: Number, default: 100 },
+
+  stats: [
+    {
+      game: String,
+      totalKills: { type: Number, default: 0 },
+      matchesPlayed: { type: Number, default: 0 },
+      points: { type: Number, default: 0 },
+    },
+  ],
 
   lastNameChange: Date,
   lastAvatarChange: Date,

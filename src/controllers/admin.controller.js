@@ -234,6 +234,7 @@ export const getTournamentById = async (req, res) => {
   }
 };
 
+// MATCH INFO
 export const sendMatchInfo = async (req, res) => {
   const { tournamentId, roomId, password } = req.body;
 
@@ -250,26 +251,122 @@ export const sendMatchInfo = async (req, res) => {
     }
   }
 
+  const playerSlot = match.slots.find(
+    (s) => s.clan.toString() === team.clan._id.toString(),
+  );
+
+  await Notification.create({
+    user: player._id,
+    message: `
+Room ID: ${match.roomId}
+Password: ${match.password}
+Your Slot: ${playerSlot?.slot}
+  `,
+  });
+
   res.json({ msg: "Match info sent" });
 };
 
-// CREATE MATCH
-export const createMatch = async (req, res) => {
-  const { tournamentId, map, roomId, password } = req.body;
+// CREATE SLOT
+export const assignSlots = async (req, res) => {
+  const { tournamentId, matchIndex, slots } = req.body;
 
   const tournament = await Tournament.findById(tournamentId);
 
-  tournament.matches.push({
-    round: 1,
-    map,
-    roomId,
-    password,
-    results: [],
-  });
+  const match = tournament.matches[matchIndex];
+
+  match.slots = slots;
 
   await tournament.save();
 
-  res.json({ msg: "Match created" });
+  res.json({ msg: "Slots assigned" });
+};
+
+// Create match
+export const createMatch = async (req, res) => {
+  try {
+    const { tournamentId, round, gameType, roomId, password } = req.body;
+
+    const match = await Match.create({
+      tournament: tournamentId,
+      round,
+      gameType,
+      roomId,
+      password,
+    });
+
+    res.status(201).json(match);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Submit results
+export const submitMatchResults = async (req, res) => {
+  try {
+    const { matchId, results } = req.body;
+    const match = await Match.findById(matchId).populate("results.user");
+
+    if (!match) return res.status(404).json({ msg: "Match not found" });
+
+    let totalPoints = 0;
+
+    // Har bir player uchun points hisoblash
+    const updatedResults = results.map((r) => {
+      let points = 0;
+      if (match.gameType === "PUBG") {
+        points = (r.kills || 0) * 5 + (r.position ? 100 - r.position : 0); // misol uchun
+      } else if (["CSGO", "Dota", "LoL"].includes(match.gameType)) {
+        points = r.win ? 50 : 10; // misol
+      } else if (match.gameType === "Chess") {
+        points = r.win ? 30 : 0;
+      }
+
+      totalPoints += points;
+      return { ...r, points };
+    });
+
+    match.results = updatedResults;
+    match.played = true;
+    await match.save();
+
+    // Player stats update
+    for (let r of updatedResults) {
+      const user = await User.findById(r.user);
+      if (!user.stats) user.stats = [];
+      let stat = user.stats.find((s) => s.game === match.gameType);
+      if (!stat) {
+        user.stats.push({
+          game: match.gameType,
+          totalKills: r.kills || 0,
+          points: r.points,
+          matchesPlayed: 1,
+        });
+      } else {
+        stat.totalKills += r.kills || 0;
+        stat.points += r.points;
+        stat.matchesPlayed += 1;
+      }
+      await user.save();
+
+      // Clan points update
+      if (user.clan) {
+        const clan = await Clan.findById(user.clan);
+        if (!clan.stats) clan.stats = [];
+        let cstat = clan.stats.find((s) => s.game === match.gameType);
+        if (!cstat) {
+          clan.stats.push({ game: match.gameType, points: r.points });
+        } else {
+          cstat.points += r.points;
+        }
+        await clan.save();
+      }
+    }
+
+    res.status(200).json({ msg: "Results submitted", match });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const submitResult = async (req, res) => {
@@ -279,21 +376,64 @@ export const submitResult = async (req, res) => {
 
   const match = tournament.matches[matchIndex];
 
-  match.results = results.map((r) => ({
-    clan: r.clan,
-    players: r.players,
-    totalKills: r.players.reduce((a, p) => a + p.kills, 0),
-    position: r.position,
-    points:
-      (r.position === 1
-        ? 10
-        : r.position === 2
-          ? 6
-          : r.position === 3
-            ? 5
-            : 0) + r.players.reduce((a, p) => a + p.kills, 0),
-  }));
+  const killPoint = match.pointRules.killPoint;
+  const placementPoints = match.pointRules.placementPoints;
 
+  const finalResults = [];
+
+  for (const r of results) {
+    // 🔥 total kill hisoblash
+    const totalKills = r.players.reduce((sum, p) => sum + p.kills, 0);
+
+    // 🔥 placement point
+    const placePoint = placementPoints.get(String(r.position)) || 0;
+
+    // 🔥 total point
+    const totalPoints = totalKills * killPoint + placePoint;
+
+    // 🔥 USER STAT UPDATE
+    for (const p of r.players) {
+      let user = await User.findById(p.user);
+
+      let stat = user.stats.find((s) => s.game === tournament.game);
+
+      if (!stat) {
+        user.stats.push({
+          game: tournament.game,
+          totalKills: p.kills,
+          matchesPlayed: 1,
+          points: p.kills * killPoint,
+        });
+      } else {
+        stat.totalKills += p.kills;
+        stat.matchesPlayed += 1;
+        stat.points += p.kills * killPoint;
+      }
+
+      await user.save();
+    }
+
+    // 🔥 CLAN STAT UPDATE
+    let clan = await Clan.findById(r.clan);
+
+    clan.stats.push({
+      tournament: tournament._id,
+      points: totalPoints,
+      kills: totalKills,
+    });
+
+    await clan.save();
+
+    finalResults.push({
+      clan: r.clan,
+      players: r.players,
+      totalKills,
+      position: r.position,
+      points: totalPoints,
+    });
+  }
+
+  match.results = finalResults;
   match.played = true;
 
   await tournament.save();

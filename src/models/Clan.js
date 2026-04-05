@@ -37,6 +37,14 @@ const clanSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  stats: [
+    {
+      tournament: { type: mongoose.Schema.Types.ObjectId, ref: "Tournament" },
+      points: Number,
+      kills: Number,
+    },
+  ],
 });
 
 export default mongoose.model("Clan", clanSchema);

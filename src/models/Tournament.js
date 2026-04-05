@@ -7,19 +7,31 @@ const matchSchema = new mongoose.Schema({
   password: String,
   map: String,
 
+  // 🔥 point qoidalari (har match uchun)
+  pointRules: {
+    killPoint: { type: Number, default: 1 },
+    placementPoints: {
+      type: Map,
+      of: Number,
+      default: { 1: 10, 2: 6, 3: 5 },
+    },
+  },
+
+  // 🔥 PUBG slotlar
+  slots: [
+    {
+      clan: { type: mongoose.Schema.Types.ObjectId, ref: "Clan" },
+      slot: String, // "1/1", "14/2"
+    },
+  ],
+
   results: [
     {
-      clan: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Clan",
-      },
+      clan: { type: mongoose.Schema.Types.ObjectId, ref: "Clan" },
 
       players: [
         {
-          user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-          },
+          user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
           kills: { type: Number, default: 0 },
         },
       ],
@@ -30,10 +42,7 @@ const matchSchema = new mongoose.Schema({
     },
   ],
 
-  played: {
-    type: Boolean,
-    default: false,
-  },
+  played: { type: Boolean, default: false },
 });
 
 const tournamentSchema = new mongoose.Schema({
@@ -43,7 +52,7 @@ const tournamentSchema = new mongoose.Schema({
   matchType: {
     type: String,
     enum: ["battle_royale", "bracket"],
-    default: "battle_royale",
+    default: false,
   },
 
   description: { type: String, default: "" },

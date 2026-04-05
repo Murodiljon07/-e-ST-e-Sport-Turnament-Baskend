@@ -3,6 +3,8 @@ import {
   register,
   login,
   getAllUsers,
+  forgotPassword,
+  updateProfile,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -57,5 +59,45 @@ router.post("/login", login);
  *         description: List of users
  */
 router.get("/", getAllUsers);
+
+/**
+ * @swagger
+ * /api/users/updateProfile:
+ *   put:
+ *     summary: Update user profile (name/avatar/password)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             fullName: "New Name"
+ *             avatar: "avatar_url"
+ *             password: "newpassword123"
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ */
+router.put("/updateProfile", updateProfile);
+
+/**
+ * @swagger
+ * /api/users/forgotPassword:
+ *   post:
+ *     summary: Send OTP to reset password
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             email: "ali@mail.com"
+ *     responses:
+ *       200:
+ *         description: OTP sent to email
+ */
+router.post("/forgotPassword", forgotPassword);
 
 export default router;

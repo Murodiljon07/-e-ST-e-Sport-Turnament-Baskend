@@ -11,7 +11,6 @@ import tournamentRoutes from "./routes/tournament.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import rankingRoutes from "./routes/ranking.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
-import updateLastActive from "../src/middleware/lastActive.js";
 const app = express();
 
 app.use(cors({ origin: "*" }));
@@ -36,7 +35,7 @@ const options = {
     ],
     servers: [
       {
-        url: "http://localhost:5000",
+        url: process.env.BASE_URL || "http://localhost:5000",
       },
     ],
     components: {
@@ -49,13 +48,12 @@ const options = {
       },
     },
   },
-  apis: ["./src/routes/*.js"], // commentlarni qayerdan o‘qiydi
+  apis: ["./src/routes/**/*.js"], // commentlarni qayerdan o‘qiydi
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use(updateLastActive);
 
 // ROUTES
 app.use("/api/ranking", rankingRoutes);
@@ -65,6 +63,7 @@ app.use("/api/votes", voteRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clans", clanRoutes);
 app.use("/api/notifications", notificationRoutes);
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
