@@ -23,7 +23,7 @@ const options = {
     info: {
       title: "E-Sport Tournament API",
       version: "1.0.0",
-      description: "API: https://e-st-e-sport-turnament-baskend.onrender.com",
+      description: "https://e-st-e-sport-turnament-baskend.onrender.com",
     },
     tags: [
       { name: "Users" },
@@ -35,7 +35,7 @@ const options = {
     ],
     servers: [
       {
-        url: "https://e-st-e-sport-turnament-baskend.onrender.com",
+        url: "http://localhost:5000",
       },
     ],
     components: {
