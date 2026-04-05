@@ -1,6 +1,15 @@
 import Clan from "../models/Clan.js";
 import User from "../models/User.js";
 
+// //GET CLANS
+// export const getAllClans  = async(req, res){
+//   try {
+
+//   } catch (error) {
+
+//   }
+// }
+
 // CREATE CLAN
 export const createClan = async (req, res) => {
   try {

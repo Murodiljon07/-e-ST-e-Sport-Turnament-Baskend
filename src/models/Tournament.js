@@ -1,17 +1,40 @@
 import mongoose from "mongoose";
 
-const tournamentSchema = new mongoose.Schema({
-  name: String,
-  game: String,
+const matchSchema = new mongoose.Schema({
+  teamA: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Clan",
+  },
+  teamB: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Clan",
+  },
+  round: Number, // 1 = quarter, 2 = semi, 3 = final
+  winner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Clan",
+  },
+  status: {
+    type: String,
+    enum: ["pending", "finished"],
+    default: "pending",
+  },
+  time: Date,
+});
 
-  type: String, // elimination
+const tournamentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  game: { type: String, required: true },
+
+  maxTeams: { type: Number, default: 16 },
+
+  type: {
+    type: String,
+    enum: ["single_elimination"],
+    default: "single_elimination",
+  },
 
   startTime: Date,
-
-  isPaid: {
-    type: Boolean,
-    default: false,
-  },
 
   teams: [
     {
@@ -20,25 +43,12 @@ const tournamentSchema = new mongoose.Schema({
     },
   ],
 
-  matches: [
-    {
-      teamA: String,
-      teamB: String,
-      time: Date,
-      winner: String,
-      status: {
-        type: String,
-        default: "pending",
-      },
-    },
-  ],
+  matches: [matchSchema],
 
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-
-  image: String,
 });
 
 export default mongoose.model("Tournament", tournamentSchema);

@@ -10,6 +10,8 @@ import protect from "../middleware/auth.js";
 
 const router = express.Router();
 
+// router.get("/",)
+
 /**
  * @swagger
  * /api/clans/create:

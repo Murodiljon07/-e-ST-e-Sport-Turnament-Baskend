@@ -3,6 +3,7 @@ import {
   createTournament,
   joinTournament,
   generateMatches,
+  setMatchWinner,
 } from "../controllers/tournament.controller.js";
 
 import protect from "../middleware/auth.js";
@@ -72,5 +73,7 @@ router.post("/join", protect, joinTournament);
  *         description: Matches generated
  */
 router.post("/generate/:id", protect, generateMatches);
+
+router.post("/winner/:id", protect, setMatchWinner);
 
 export default router;
