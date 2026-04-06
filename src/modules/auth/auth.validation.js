@@ -6,8 +6,10 @@ export const registerValidation = (data) => {
     fullName: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
+    nickname: Joi.string().optional(),
     age: Joi.number().min(16).required(),
     country: Joi.string().required(),
+    mainGame: Joi.string().required(),
     games: Joi.array()
       .items(
         Joi.object({

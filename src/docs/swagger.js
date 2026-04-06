@@ -65,6 +65,39 @@ const swaggerDefinition = {
         },
       },
 
+      UserRegister: {
+        type: "object",
+        required: ["fullName", "email", "password", "age", "country", "games"],
+        properties: {
+          fullName: { type: "string" },
+          nickname: { type: "string" },
+          email: { type: "string", format: "email" },
+          password: { type: "string", format: "password" },
+          age: { type: "integer" },
+          country: { type: "string" },
+          mainGame: { type: "string" },
+          games: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                playerId: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+
+      UserLogin: {
+        type: "object",
+        required: ["email", "password"],
+        properties: {
+          email: { type: "string", format: "email" },
+          password: { type: "string", format: "password" },
+        },
+      },
+
       // Tournament schema
       Tournament: {
         type: "object",
