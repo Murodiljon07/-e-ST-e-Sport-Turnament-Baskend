@@ -1,73 +1,37 @@
 import express from "express";
-import cors from "cors";
-
 import swaggerUi from "swagger-ui-express";
-import swaggerJsdoc from "swagger-jsdoc";
+import swaggerSpec from "./docs/swagger.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+import userRoutes from "./modules/user/user.routes.js";
+import clanRoutes from "./modules/clan/clan.routes.js";
+import tournamentRoutes from "./modules/tournament/tournament.routes.js";
+import participantRoutes from "./modules/participant/participant.routes.js";
+import matchRoutes from "./modules/match/match.routes.js";
+import teamRoutes from "./modules/team/team.routes.js";
+import resultRoutes from "./modules/result/result.routes.js";
+import notificationRoutes from "./modules/notification/notification.routes.js";
 
-import userRoutes from "./routes/user.routes.js";
-import clanRoutes from "./routes/clan.routes.js";
-import voteRoutes from "./routes/vote.routes.js";
-import tournamentRoutes from "./routes/tournament.routes.js";
-import adminRoutes from "./routes/admin.routes.js";
-import rankingRoutes from "./routes/ranking.routes.js";
-import notificationRoutes from "./routes/notification.routes.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
+
 const app = express();
 
-app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// 🔥 Swagger config
-const options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "E-Sport Tournament API",
-      version: "1.0.0",
-      description: "https://e-st-e-sport-turnament-baskend.onrender.com",
-    },
-    tags: [
-      { name: "Users" },
-      { name: "Clans" },
-      { name: "Tournaments" },
-      { name: "Votes" },
-      { name: "Ranking" },
-      { name: "Admin" },
-    ],
-    servers: [
-      {
-        url: process.env.BASE_URL || "http://localhost:5000",
-      },
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-  },
-  apis: ["./src/routes/**/*.js"], // commentlarni qayerdan o‘qiydi
-};
+// Swagger
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-const swaggerSpec = swaggerJsdoc(options);
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// ROUTES
-app.use("/api/ranking", rankingRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/tournaments", tournamentRoutes);
-app.use("/api/votes", voteRoutes);
+// Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clans", clanRoutes);
+app.use("/api/tournaments", tournamentRoutes);
+app.use("/api/participants", participantRoutes);
+app.use("/api/matches", matchRoutes);
+app.use("/api/teams", teamRoutes);
+app.use("/api/results", resultRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 // Error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
-});
+app.use(errorHandler);
 
 export default app;
