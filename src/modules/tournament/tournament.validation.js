@@ -6,7 +6,8 @@ export const tournamentValidation = (data) => {
     name: Joi.string().required(),
     game: Joi.string().required(),
     startDate: Joi.date().required(),
-    endDate: Joi.date().required(),
+    endDate: Joi.string().required(),
+    description: Joi.string().required(),
     rank: Joi.string()
       .valid("E", "D", "C", "B", "A", "S", "SS", "SSS")
       .required(),

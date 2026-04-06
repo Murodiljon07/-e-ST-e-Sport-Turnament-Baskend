@@ -6,18 +6,11 @@ const tournamentSchema = new mongoose.Schema(
     game: { type: String, required: true },
     description: String,
     startDate: Date,
-    endDate: Date,
+    endDate: { type: String, required: true },
     rankRestriction: {
-      min: {
-        type: String,
-        enum: ["E", "D", "C", "B", "A", "S", "SS", "SSS"],
-        default: "E",
-      },
-      max: {
-        type: String,
-        enum: ["E", "D", "C", "B", "A", "S", "SS", "SSS"],
-        default: "SSS",
-      },
+      type: String,
+      enum: ["E", "D", "C", "B", "A", "S", "SS", "SSS"],
+      default: "E",
     },
     maxParticipants: { type: Number, default: 16 },
     participantsCount: { type: Number, default: 0 },
