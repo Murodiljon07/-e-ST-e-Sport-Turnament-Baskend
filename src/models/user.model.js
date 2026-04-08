@@ -4,6 +4,7 @@ const statSchema = new mongoose.Schema({
   totalKills: { type: Number, default: 0 },
   matchesPlayed: { type: Number, default: 0 },
   points: { type: Number, default: 0 },
+  detactive: { type: Number, default: 100 },
 });
 
 const userSchema = new mongoose.Schema(
@@ -29,7 +30,6 @@ const userSchema = new mongoose.Schema(
     avatar: String,
     role: {
       type: String,
-      enum: ["player", "admin"],
       default: "player",
     },
     clan: { type: mongoose.Schema.Types.ObjectId, ref: "Clan", default: null },
@@ -38,6 +38,17 @@ const userSchema = new mongoose.Schema(
       enum: ["leader", "elder", "member"],
       default: null,
     },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    bannedAt: Date,
+    banReason: {
+      type: String,
+      enum: ["CHEATING", "TOXIC", "AFK", "BUG_ABUSE", "ANOTHER"],
+      default: "CHEATING",
+    },
+    banExpiresAt: Date,
   },
   { timestamps: true },
 );

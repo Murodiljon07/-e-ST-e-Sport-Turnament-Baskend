@@ -22,6 +22,7 @@ export const loginUser = async (req, res) => {
   if (error) return res.status(400).json({ message: error.details[0].message });
 
   const user = await loginUserService(req.body.email, req.body.password);
+
   if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
   const token = generateTokenService(user._id, user.role);

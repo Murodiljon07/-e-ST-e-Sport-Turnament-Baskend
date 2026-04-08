@@ -5,6 +5,12 @@ export const userUpdateValidation = (data) => {
   const schema = Joi.object({
     fullName: Joi.string(),
     age: Joi.number().min(16),
+    rank: Joi.object({
+      current: Joi.string().valid("E", "D", "C", "B", "A", "S", "SS", "SSS"),
+      points: Joi.number(),
+      isManual: Joi.boolean(),
+    }),
+    nickname: Joi.string(),
     country: Joi.string(),
     email: Joi.string().email(),
     games: Joi.array().items(

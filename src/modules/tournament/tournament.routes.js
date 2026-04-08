@@ -5,6 +5,7 @@ import {
   getTournamentById,
   updateTournament,
   deleteTournament,
+  joinTournament,
 } from "./tournament.controller.js";
 import { protect, admin } from "../../middlewares/auth.middleware.js";
 
@@ -116,5 +117,27 @@ router.put("/:id", protect, admin, updateTournament);
  *         description: Tournament deleted
  */
 router.delete("/:id", protect, admin, deleteTournament);
+
+/**
+ * @swagger
+ * /api/tournaments/{id}/join:
+ *   post:
+ *     summary: Join tournament
+ *     tags: [Tournament]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Joined successfully
+ *       400:
+ *         description: Error
+ */
+router.post("/:id/join", protect, joinTournament);
 
 export default router;

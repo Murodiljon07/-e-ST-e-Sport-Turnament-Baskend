@@ -4,6 +4,7 @@ import {
   getTournamentByIdService,
   updateTournamentService,
   deleteTournamentService,
+  joinTournamentService,
 } from "./tournament.service.js";
 import { tournamentValidation } from "./tournament.validation.js";
 
@@ -47,4 +48,20 @@ export const deleteTournament = async (req, res) => {
   if (!deleted)
     return res.status(404).json({ message: "Tournament not found" });
   res.json({ message: "Tournament deleted" });
+};
+
+/* Join Turnament */
+export const joinTournament = async (req, res) => {
+  try {
+    const tournament = await joinTournamentService(req.params.id, req.user.id);
+
+    res.json({
+      message: "Joined successfully",
+      tournament,
+    });
+  } catch (err) {
+    res.status(400).json({
+      message: err.message,
+    });
+  }
 };

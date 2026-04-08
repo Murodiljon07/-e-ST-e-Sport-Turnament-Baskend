@@ -1,5 +1,10 @@
 import User from "../../models/user.model.js";
-import { updateUserService, getUserService } from "./user.service.js";
+import {
+  updateUserService,
+  getUserService,
+  BanUserService,
+  UnBanUserService,
+} from "./user.service.js";
 import { userUpdateValidation } from "./user.validation.js";
 
 /** Get all users */
@@ -30,4 +35,32 @@ export const deleteUser = async (req, res) => {
   const user = await User.findByIdAndDelete(req.params.id);
   if (!user) return res.status(404).json({ message: "User not found" });
   res.json({ message: "User deleted" });
+};
+
+/*Ban user */
+export const banUser = async (req, res) => {
+  const { reason, durationDays } = req.body;
+
+  const user = await BanUserService(req.params.id, {
+    reason,
+    durationDays,
+  });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  res.json({
+    message: `User banned for ${durationDays || "permanent"} days`,
+    user,
+  });
+};
+
+/* Unban User */
+export const unBanUser = async (req, res) => {
+  const user = UnBanUserService(req.params.id);
+
+  if (!user) return res.status(404).json({ message: "User not foynd" });
+
+  res.json({ message: "User unbanned", user });
 };

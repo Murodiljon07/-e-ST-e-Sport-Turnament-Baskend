@@ -5,10 +5,11 @@ export const tournamentValidation = (data) => {
   const schema = Joi.object({
     name: Joi.string().required(),
     game: Joi.string().required(),
+    type: Joi.string().valid("solo", "team", "duo").required(),
     startDate: Joi.date().required(),
     endDate: Joi.string().required(),
     description: Joi.string().required(),
-    rank: Joi.string()
+    rankRestriction: Joi.string()
       .valid("E", "D", "C", "B", "A", "S", "SS", "SSS")
       .required(),
     isRanked: Joi.boolean().default(false),

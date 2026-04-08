@@ -4,6 +4,8 @@ import {
   getUserById,
   updateUser,
   deleteUser,
+  banUser,
+  unBanUser,
 } from "./user.controller.js";
 import { protect, admin } from "../../middlewares/auth.middleware.js";
 
@@ -95,5 +97,27 @@ router.put("/:id", protect, updateUser);
  *         description: Deleted user
  */
 router.delete("/:id", protect, admin, deleteUser);
+
+/**
+ * @swagger
+ * /api/users/{id}/ban:
+ *   put:
+ *     summary: Ban user
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put("/:id/ban", protect, admin, banUser);
+
+/**
+ * @swagger
+ * /api/users/{id}/unban:
+ *   put:
+ *     summary: Unban user
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put("/:id/unban", protect, admin, unBanUser);
 
 export default router;
