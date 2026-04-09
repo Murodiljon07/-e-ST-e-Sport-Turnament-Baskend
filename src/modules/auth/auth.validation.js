@@ -3,13 +3,17 @@ import Joi from "joi";
 /** Register validation */
 export const registerValidation = (data) => {
   const schema = Joi.object({
+    avatar: Joi.string().optional(),
     fullName: Joi.string().required(),
+    nickname: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
-    nickname: Joi.string().optional(),
     age: Joi.number().min(16).required(),
     country: Joi.string().required(),
-    mainGame: Joi.string().required(),
+    mainGame: Joi.object({
+      game: Joi.string().required(),
+      playerId: Joi.string().required(),
+    }).required(),
     games: Joi.array()
       .items(
         Joi.object({
@@ -17,7 +21,7 @@ export const registerValidation = (data) => {
           playerId: Joi.string().required(),
         }),
       )
-      .required(),
+      .optional(),
   });
   return schema.validate(data);
 };

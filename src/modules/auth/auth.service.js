@@ -7,8 +7,17 @@ const JWT_EXPIRE = process.env.JWT_EXPIRE || "7d";
 
 /** Register user service */
 export const registerUserService = async (data) => {
-  const { fullName, nickname, mainGame, email, password, age, country, games } =
-    data;
+  const {
+    avatar,
+    fullName,
+    nickname,
+    email,
+    password,
+    age,
+    country,
+    mainGame,
+    games,
+  } = data;
 
   // Email allaqachon mavjudligini tekshirish
   const existing = await User.findOne({ email });
@@ -19,8 +28,8 @@ export const registerUserService = async (data) => {
   // User create
   const user = await User.create({
     fullName,
-    nickname, // 💥 qo‘shildi
-    mainGame, // 💥 qo‘shildi
+    nickname,
+    mainGame,
     email,
     password: hashedPassword,
     age,

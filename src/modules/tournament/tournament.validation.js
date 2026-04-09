@@ -5,9 +5,9 @@ export const tournamentValidation = (data) => {
   const schema = Joi.object({
     name: Joi.string().required(),
     game: Joi.string().required(),
-    type: Joi.string().valid("solo", "team", "duo").required(),
+    type: Joi.string().valid("solo", "team", "duo", "squad").required(),
     startDate: Joi.date().required(),
-    endDate: Joi.string().required(),
+    endDate: Joi.string(),
     description: Joi.string().required(),
     rankRestriction: Joi.string()
       .valid("E", "D", "C", "B", "A", "S", "SS", "SSS")

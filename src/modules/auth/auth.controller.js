@@ -1,3 +1,4 @@
+import { banUser } from "../user/user.controller.js";
 import {
   registerUserService,
   loginUserService,

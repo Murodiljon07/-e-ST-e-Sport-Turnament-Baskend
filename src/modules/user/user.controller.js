@@ -4,6 +4,7 @@ import {
   getUserService,
   BanUserService,
   UnBanUserService,
+  updateUserStatsService,
 } from "./user.service.js";
 import { userUpdateValidation } from "./user.validation.js";
 

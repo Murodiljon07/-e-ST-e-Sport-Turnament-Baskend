@@ -9,29 +9,35 @@ const statSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema(
   {
+    avatar: String,
     fullName: { type: String, required: true },
     nickname: { type: String, required: true, unique: true },
     age: { type: Number, min: 16, required: true },
     country: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
-    mainGame: { type: String, required: true },
-    games: [{ game: String, playerId: String }],
-    rank: {
-      current: {
-        type: String,
-        enum: ["E", "D", "C", "B", "A", "S", "SS", "SSS"],
-        default: "E",
+    mainGame: {
+      type: {
+        game: String,
+        playerId: String,
+        gamePoint: { type: Number, default: 0 },
       },
-      points: { type: Number, default: 0 },
-      isManual: { type: Boolean, default: false },
+      required: true,
+    },
+    games: [
+      {
+        game: String,
+        playerId: String,
+        gamePoint: { type: Number, default: 0 },
+      },
+    ],
+    rank: {
+      type: String,
+      enum: ["E", "D", "C", "B", "A", "S", "SS", "SSS"],
+      default: "E",
     },
     stats: { type: Map, of: statSchema, default: {} },
-    avatar: String,
-    role: {
-      type: String,
-      default: "player",
-    },
+    role: { type: String, default: "player" },
     clan: { type: mongoose.Schema.Types.ObjectId, ref: "Clan", default: null },
     clanRole: {
       type: String,
@@ -45,10 +51,11 @@ const userSchema = new mongoose.Schema(
     bannedAt: Date,
     banReason: {
       type: String,
-      enum: ["CHEATING", "TOXIC", "AFK", "BUG_ABUSE", "ANOTHER"],
+      enum: ["CHEATING", "TOXIC", "AFK", "BUG_ABUSE", "TRUST_SCORE"],
       default: "CHEATING",
     },
     banExpiresAt: Date,
+    trustScore: { type: Number, default: 100 },
   },
   { timestamps: true },
 );

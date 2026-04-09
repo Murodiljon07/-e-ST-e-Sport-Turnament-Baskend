@@ -45,3 +45,19 @@ export const UnBanUserService = async (id) => {
     },
   );
 };
+
+/* user rank calkulation */
+
+export const updateUserStatsService = async (userId, match, tournament) => {
+  const totalPoints = calculateMatchPoints(match, tournament);
+
+  const user = await User.findById(userId);
+
+  user.stats.totalKills += match.kills;
+  user.stats.matchesPlayed += 1;
+  user.stats.points += totalPoints;
+
+  user.stats.rank = calculateRank(user.stats.points);
+
+  await user.save();
+};
