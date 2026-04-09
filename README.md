@@ -59,13 +59,3 @@ npm run dev
 http://localhost:5000/api-docs
 
 ---
-
-## 🔥 Qo‘shimcha maslahat
-
-Agar xohlasang, keyingi stepda men senga:
-
-- README ga **rasmlar (UI preview)** qo‘shib beraman
-- yoki **badge (build status, npm, etc)** qo‘shaman
-- yoki **professional GitHub portfolio style** qilib beraman
-
-Qaysi darajaga chiqarmoqchisan — oddiymi yoki TOP daraja (portfolio level)?
