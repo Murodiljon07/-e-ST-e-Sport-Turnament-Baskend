@@ -9,6 +9,7 @@ const statSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema(
   {
+    _id: String,
     avatar: String,
     fullName: { type: String, required: true },
     nickname: { type: String, required: true, unique: true },
