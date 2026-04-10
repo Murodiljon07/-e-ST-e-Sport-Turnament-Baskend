@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema(
     banReason: {
       type: String,
       enum: ["CHEATING", "TOXIC", "AFK", "BUG_ABUSE", "TRUST_SCORE"],
-      default: "CHEATING",
+      default: null,
     },
     banExpiresAt: Date,
     trustScore: { type: Number, default: 100 },
