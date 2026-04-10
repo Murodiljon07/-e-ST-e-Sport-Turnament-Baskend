@@ -17,7 +17,13 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }),
+);
 
 // Swagger
 app.use("/api-docs/", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
