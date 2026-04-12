@@ -42,6 +42,7 @@ const tournamentSchema = new mongoose.Schema(
       default: "upcoming",
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    inform: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

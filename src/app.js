@@ -11,6 +11,7 @@ import matchRoutes from "./modules/match/match.routes.js";
 import teamRoutes from "./modules/team/team.routes.js";
 import resultRoutes from "./modules/result/result.routes.js";
 import notificationRoutes from "./modules/notification/notification.routes.js";
+import leaderboardRoutes from "./modules/leaderboard/leaderboard.routes.js";
 
 import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -38,6 +39,7 @@ app.use("/api/matches", matchRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/results", resultRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
 
 // Error handler
 app.use(errorHandler);
